@@ -15,7 +15,7 @@ const upload = multer({
 });
 
 router.get("/:username", user.getUser);
-router.patch("/", auth, upload.single("image"), user.editUser);
+router.patch("/", auth, upload.single("avatar"), user.editUser);
 router.delete("/", auth, user.deleteUser);
 
 module.exports = router;

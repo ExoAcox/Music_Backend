@@ -5,7 +5,11 @@ module.exports = {
 		return new Promise(resolve => {
 			db.query(`SELECT * FROM user WHERE username = '${username}'`, (err, result) => {
 				if (err) reject(new Error(err));
-				resolve(result);
+				if (result.length > 0) {
+					resolve(result);
+				} else {
+					resolve({ error: "User not found !" });
+				}
 			});
 		});
 	},

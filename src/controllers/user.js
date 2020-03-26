@@ -32,7 +32,8 @@ module.exports = {
 			data.birthdate = birthdate;
 		}
 		if (req.file) {
-			data.avatar = req.file.fileName;
+			console.log(req.file);
+			data.avatar = req.file.originalname;
 		}
 
 		user.editUser(req.username, data).then(resolve => {

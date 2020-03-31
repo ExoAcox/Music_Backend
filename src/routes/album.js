@@ -15,7 +15,7 @@ const upload = multer({
 });
 
 router.get("/:id", album.getAlbum);
-router.get("/:id", album.getRandomAlbum);
+router.get("/", album.getRandomAlbum);
 router.post("/", auth, upload.single("avatar"), album.addAlbum);
 router.patch("/", auth, upload.single("avatar"), album.editAlbum);
 router.delete("/:id", auth, album.deleteAlbum);

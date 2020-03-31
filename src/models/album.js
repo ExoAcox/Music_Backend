@@ -1,4 +1,5 @@
 const mongodb = require("mongodb").MongoClient;
+const url = process.env.MONGO_SERVER;
 
 module.exports = {
 	getAlbum: id => {
@@ -15,14 +16,14 @@ module.exports = {
 			});
 		});
 	},
-	getRandomAlbum: query => {
+	getRandomAlbum: data => {
 		return new Promise(resolve => {
-			const random = req.body.template ? JSON.parse(req.body.template) : [];
+			const random = data.template ? JSON.parse(data.template) : [];
 			let x = 0;
 
 			mongodb.connect(url, { useUnifiedTopology: true }, (err, conn) => {
 				if (err) throw err;
-				while (x < req.body.max) {
+				while (x < data.max) {
 					conn
 						.db()
 						.collection("album")

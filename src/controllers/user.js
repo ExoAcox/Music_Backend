@@ -32,7 +32,6 @@ module.exports = {
 			data.birthdate = birthdate;
 		}
 		if (req.file) {
-			console.log(req.file);
 			data.avatar = req.file.originalname;
 		}
 

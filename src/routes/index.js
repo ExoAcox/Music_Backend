@@ -5,6 +5,6 @@ const album = require("./album");
 
 router.use("/user", user);
 router.use("/", login);
-router.user("/album", album);
+router.use("/album", album);
 
 module.exports = router;

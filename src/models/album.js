@@ -1,6 +1,6 @@
 const mongodb = require("mongodb").MongoClient;
 const url = process.env.MONGO_SERVER;
-const download = require("image-downloader");
+// const download = require("image-downloader");
 
 module.exports = {
 	getAlbum: id => {
@@ -19,27 +19,28 @@ module.exports = {
 	},
 	getRandomAlbum: data => {
 		return new Promise(resolve => {
-			const random = data.template ? JSON.parse(data.template) : [];
-			let x = 0;
-
-			mongodb.connect(url, { useUnifiedTopology: true }, (err, conn) => {
-				if (err) throw err;
-				while (x < data.max) {
+			const source = data.template ? (data.template.length < 100 ? JSON.parse(data.template) : []) : [];
+			const random = leftover => {
+				mongodb.connect(url, { useUnifiedTopology: true }, async (err, conn) => {
+					if (err) throw err;
 					conn
 						.db()
 						.collection("album")
-						.aggregate([{ $sample: { size: 1 } }])
+						.aggregate([{ $sample: { size: leftover } }])
 						.toArray((err, result) => {
 							if (err) throw err;
-							if (!random.includes(result[0].album_id)) {
-								random.push(result);
-								x++;
+							const unique = new Set(result);
+							const number = leftover - (source.length + [...unique].length);
+							if (number > 0) {
+								source = [source, ...unique];
+								random(number);
+							} else {
+								resolve([source, ...unique].slice(1));
 							}
 						});
-				}
-			});
-
-			resolve(random);
+				});
+			};
+			random(data.max || 5);
 		});
 	},
 	addAlbum: data => {
@@ -51,23 +52,9 @@ module.exports = {
 					.collection("album")
 					.insertMany(data, (err, result) => {
 						if (err) throw err;
-						data.forEach(x => {
-							if (x.album_cover) {
-								download
-									.image({ url: x.album_cover, dest: "./public/img/cover/" + x._id + ".jpg" })
-									.then(result2 => {
-										console.log(result2);
-									})
-									.catch(err2 => {
-										console.error(err2);
-									});
-							}
-						});
 						resolve(result);
 					});
 			});
-
-			resolve(random);
 		});
 	},
 	editAlbum: (data, id) => {
@@ -79,16 +66,6 @@ module.exports = {
 					.collection("album")
 					.updateOne({ _id: id }, { $set: data }, (err, result) => {
 						if (err) throw err;
-						if (data.album_cover) {
-							download
-								.image({ url: data.album_cover, dest: "./public/img/cover/" + id + ".jpg" })
-								.then(result2 => {
-									console.log(result2);
-								})
-								.catch(err2 => {
-									console.error(err2);
-								});
-						}
 						resolve(result);
 					});
 			});

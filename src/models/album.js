@@ -1,5 +1,6 @@
 const mongodb = require("mongodb").MongoClient;
 const url = process.env.MONGO_SERVER;
+const download = require("image-downloader");
 
 module.exports = {
 	getAlbum: id => {
@@ -48,8 +49,20 @@ module.exports = {
 				conn
 					.db()
 					.collection("album")
-					.insertOne(data, (err, result) => {
+					.insertMany(data, (err, result) => {
 						if (err) throw err;
+						data.forEach(x => {
+							if (x.album_cover) {
+								download
+									.image({ url: x.album_cover, dest: "./public/img/cover/" + x._id + ".jpg" })
+									.then(result2 => {
+										console.log(result2);
+									})
+									.catch(err2 => {
+										console.error(err2);
+									});
+							}
+						});
 						resolve(result);
 					});
 			});
@@ -66,6 +79,16 @@ module.exports = {
 					.collection("album")
 					.updateOne({ _id: id }, { $set: data }, (err, result) => {
 						if (err) throw err;
+						if (data.album_cover) {
+							download
+								.image({ url: data.album_cover, dest: "./public/img/cover/" + id + ".jpg" })
+								.then(result2 => {
+									console.log(result2);
+								})
+								.catch(err2 => {
+									console.error(err2);
+								});
+						}
 						resolve(result);
 					});
 			});

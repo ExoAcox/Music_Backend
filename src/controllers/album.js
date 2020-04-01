@@ -17,7 +17,7 @@ module.exports = {
 		});
 	},
 	editAlbum: (req, res) => {
-		const { artist_name, album_name, artist_id, _id, release_date, track_count } = req.body;
+		const { artist_name, album_name, artist_id, _id, release_date, track_count, album_cover } = req.body;
 		// _id == album_id
 
 		const data = {};
@@ -36,8 +36,8 @@ module.exports = {
 		if (track_count) {
 			data.track_count = track_count;
 		}
-		if (req.file) {
-			data.cover_art = req.file.originalname;
+		if (album_cover) {
+			data.album_cover = album_cover;
 		}
 		if (_id) {
 			data._id = _id;

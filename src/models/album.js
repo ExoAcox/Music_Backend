@@ -1,6 +1,6 @@
 const mongodb = require("mongodb").MongoClient;
 const url = process.env.MONGO_SERVER;
-// const download = require("image-downloader");
+const download = require("image-downloader");
 
 module.exports = {
 	getAlbum: id => {
@@ -13,6 +13,7 @@ module.exports = {
 					.findOne({ album_id: id }, (err, result) => {
 						if (err) throw err;
 						resolve(result);
+						conn.close();
 					});
 			});
 		});
@@ -36,6 +37,7 @@ module.exports = {
 								random(number);
 							} else {
 								resolve([source, ...unique].slice(1));
+								conn.close();
 							}
 						});
 				});
@@ -45,14 +47,38 @@ module.exports = {
 	},
 	addAlbum: data => {
 		return new Promise(resolve => {
-			mongodb.connect(url, { useUnifiedTopology: true }, (err, conn) => {
+			mongodb.connect(url, { useUnifiedTopology: true }, async (err, conn) => {
 				if (err) throw err;
+				await data.forEach(x => {
+					download
+						.image({ url: x.album_cover, dest: "./public/img/cover/" + x.album_id + ".jpg" })
+						.then(result => {
+							console.log(result.filename);
+						})
+						.catch(err => console.error(err));
+				});
+				const final = data.map(x => {
+					const source = {
+						album_name: x.album_name,
+						album_id: x.album_id,
+						artist_name: x.artist_name,
+						artist_id: x.artist_id,
+						itunes_url: x.itunes_url,
+						track_count: x.track_count,
+						release_date: x.release_date,
+					};
+					if (x.japan) {
+						source.japan = true;
+					}
+					return source;
+				});
 				conn
 					.db()
 					.collection("album")
-					.insertMany(data, (err, result) => {
+					.insertMany(final, (err, result) => {
 						if (err) throw err;
 						resolve(result);
+						conn.close();
 					});
 			});
 		});
@@ -64,13 +90,12 @@ module.exports = {
 				conn
 					.db()
 					.collection("album")
-					.updateOne({ _id: id }, { $set: data }, (err, result) => {
+					.updateOne({ album_id: id }, { $set: data }, (err, result) => {
 						if (err) throw err;
 						resolve(result);
+						conn.close();
 					});
 			});
-
-			resolve(random);
 		});
 	},
 	deleteAlbum: id => {
@@ -83,10 +108,9 @@ module.exports = {
 					.updateOne({ _id: id }, (err, result) => {
 						if (err) throw err;
 						resolve(result);
+						conn.close();
 					});
 			});
-
-			resolve(random);
 		});
 	},
 };

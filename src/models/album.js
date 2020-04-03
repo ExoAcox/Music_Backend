@@ -1,6 +1,7 @@
 const mongodb = require("mongodb").MongoClient;
 const url = process.env.MONGO_SERVER;
 const download = require("image-downloader");
+const Jimp = require("jimp");
 
 module.exports = {
 	getAlbum: id => {
@@ -47,13 +48,24 @@ module.exports = {
 	},
 	addAlbum: data => {
 		return new Promise(resolve => {
-			mongodb.connect(url, { useUnifiedTopology: true }, async (err, conn) => {
+			mongodb.connect(url, { useUnifiedTopology: true }, (err, conn) => {
 				if (err) throw err;
-				await data.forEach(x => {
+				data.forEach(x => {
 					download
 						.image({ url: x.album_cover, dest: "./public/img/cover/" + x.album_id + ".jpg" })
 						.then(result => {
-							console.log(result.filename);
+							if (x.custom_cover) {
+								Jimp.read(result.filename, (err, image) => {
+									if (err) throw err;
+									image
+										.resize(300, 300)
+										.quality(90)
+										.write(result.filename);
+									console.log("Convert: " + result.filename);
+								});
+							} else {
+								console.log("No Convert: " + result.filename);
+							}
 						})
 						.catch(err => console.error(err));
 				});

@@ -2,17 +2,17 @@ const album = require("../models/album");
 
 module.exports = {
 	getAlbum: (req, res) => {
-		album.getAlbum(req.params.id).then(resolve => {
+		album.getAlbum(req.params.id).then((resolve) => {
 			res.json(resolve);
 		});
 	},
 	getRandomAlbum: (req, res) => {
-		album.getRandomAlbum(req.body).then(resolve => {
+		album.getRandomAlbum(req.body).then((resolve) => {
 			res.json(resolve);
 		});
 	},
 	addAlbum: (req, res) => {
-		album.addAlbum(req.body.data).then(resolve => {
+		album.addAlbum(req.body.data).then((resolve) => {
 			res.json(resolve);
 		});
 	},
@@ -43,12 +43,12 @@ module.exports = {
 			data.album_id = album_id;
 		}
 
-		album.editAlbum(data, req.params.id).then(resolve => {
+		album.editAlbum(data, req.params.id).then((resolve) => {
 			res.json(resolve);
 		});
 	},
 	deleteAlbum: (req, res) => {
-		album.deleteAlbum(req.params.id).then(resolve => {
+		album.deleteAlbum(req.params.id).then((resolve) => {
 			res.json(resolve);
 		});
 	},

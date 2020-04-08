@@ -4,8 +4,8 @@ const download = require("image-downloader");
 const Jimp = require("jimp");
 
 module.exports = {
-	getAlbum: id => {
-		return new Promise(resolve => {
+	getAlbum: (id) => {
+		return new Promise((resolve) => {
 			mongodb.connect(url, { useUnifiedTopology: true }, (err, conn) => {
 				if (err) throw err;
 				conn
@@ -19,10 +19,10 @@ module.exports = {
 			});
 		});
 	},
-	getRandomAlbum: data => {
-		return new Promise(resolve => {
-			const source = data.template ? (data.template.length < 100 ? JSON.parse(data.template) : []) : [];
-			const random = leftover => {
+	getRandomAlbum: (data) => {
+		return new Promise((resolve) => {
+			let source = data.template ? (data.template.length < 100 ? JSON.parse(data.template) : []) : [];
+			const random = (leftover) => {
 				mongodb.connect(url, { useUnifiedTopology: true }, async (err, conn) => {
 					if (err) throw err;
 					conn
@@ -46,30 +46,27 @@ module.exports = {
 			random(data.max || 5);
 		});
 	},
-	addAlbum: data => {
-		return new Promise(resolve => {
+	addAlbum: (data) => {
+		return new Promise((resolve) => {
 			mongodb.connect(url, { useUnifiedTopology: true }, (err, conn) => {
 				if (err) throw err;
-				data.forEach(x => {
+				data.forEach((x) => {
 					download
 						.image({ url: x.album_cover, dest: "./public/img/cover/" + x.album_id + ".jpg" })
-						.then(result => {
+						.then((result) => {
 							if (x.custom_cover) {
 								Jimp.read(result.filename, (err, image) => {
 									if (err) throw err;
-									image
-										.resize(300, 300)
-										.quality(90)
-										.write(result.filename);
-									console.log("Convert: " + result.filename);
+									image.resize(300, 300).quality(90).write(result.filename);
+									console.log("Convert: " + x.artist_name + " - " + x.album_name);
 								});
 							} else {
-								console.log("No Convert: " + result.filename);
+								console.log("No Convert: " + x.artist_name + " - " + x.album_name);
 							}
 						})
-						.catch(err => console.error(err));
+						.catch((err) => console.error(err));
 				});
-				const final = data.map(x => {
+				const final = data.map((x) => {
 					const source = {
 						album_name: x.album_name,
 						album_id: x.album_id,
@@ -79,9 +76,6 @@ module.exports = {
 						track_count: x.track_count,
 						release_date: x.release_date,
 					};
-					if (x.japan) {
-						source.japan = true;
-					}
 					return source;
 				});
 				conn
@@ -96,7 +90,7 @@ module.exports = {
 		});
 	},
 	editAlbum: (data, id) => {
-		return new Promise(resolve => {
+		return new Promise((resolve) => {
 			mongodb.connect(url, { useUnifiedTopology: true }, (err, conn) => {
 				if (err) throw err;
 				conn
@@ -110,8 +104,8 @@ module.exports = {
 			});
 		});
 	},
-	deleteAlbum: id => {
-		return new Promise(resolve => {
+	deleteAlbum: (id) => {
+		return new Promise((resolve) => {
 			mongodb.connect(url, { useUnifiedTopology: true }, (err, conn) => {
 				if (err) throw err;
 				conn

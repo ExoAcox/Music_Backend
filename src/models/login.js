@@ -1,18 +1,17 @@
 const db = require("../configs/database");
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
 
 function checkUsername(username) {
-	return new Promise(resolve => {
-		db.query(`SELECT username FROM user WHERE username = '${username}'`, (err, data) => {
+	return new Promise((resolve) => {
+		db.query(`SELECT * FROM user WHERE username = '${username}'`, (err, data) => {
 			if (err) throw err;
 			resolve(data[0]);
 		});
 	});
 }
 function checkPassword(username, password) {
-	return new Promise(resolve => {
+	return new Promise((resolve) => {
 		db.query(`SELECT password FROM user WHERE username = '${username}'`, (err, data) => {
 			if (err) throw err;
 			bcrypt.compare(password, data[0].password, (err, result) => {
@@ -26,8 +25,8 @@ function checkPassword(username, password) {
 	});
 }
 function hash(password) {
-	return new Promise(resolve => {
-		bcrypt.hash(password, 10, function(err, hash) {
+	return new Promise((resolve) => {
+		bcrypt.hash(password, 10, function (err, hash) {
 			if (err) throw err;
 			resolve(hash);
 		});
@@ -35,13 +34,19 @@ function hash(password) {
 }
 
 module.exports = {
-	login: async (username, password) => {
+	login: async (username, password, usernameVerify) => {
 		// check if username exist or not
-		if (await checkUsername(username)) {
+		const userData = await checkUsername(username || usernameVerify);
+		if (userData) {
+			if (usernameVerify) {
+				return new Promise((resolve) => {
+					resolve(userData);
+				});
+			}
 			// check if password is match with username
-			if (await checkPassword(username, password)) {
-				return new Promise(resolve => {
-					resolve({ token: jwt.sign({ username: username }, process.env.SECRET_KEY) });
+			else if (await checkPassword(username, password)) {
+				return new Promise((resolve) => {
+					resolve(userData);
 				});
 			}
 		}

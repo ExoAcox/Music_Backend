@@ -8,8 +8,7 @@ module.exports = {
 		return new Promise((resolve) => {
 			mongodb.connect(url, { useUnifiedTopology: true }, (err, conn) => {
 				if (err) throw err;
-				conn
-					.db()
+				conn.db()
 					.collection("album")
 					.findOne({ album_id: id }, (err, result) => {
 						if (err) throw err;
@@ -25,8 +24,7 @@ module.exports = {
 			const random = (leftover) => {
 				mongodb.connect(url, { useUnifiedTopology: true }, async (err, conn) => {
 					if (err) throw err;
-					conn
-						.db()
+					conn.db()
 						.collection("album")
 						.aggregate([{ $sample: { size: leftover } }])
 						.toArray((err, result) => {
@@ -78,8 +76,7 @@ module.exports = {
 					};
 					return source;
 				});
-				conn
-					.db()
+				conn.db()
 					.collection("album")
 					.insertMany(final, (err, result) => {
 						if (err) throw err;
@@ -93,8 +90,7 @@ module.exports = {
 		return new Promise((resolve) => {
 			mongodb.connect(url, { useUnifiedTopology: true }, (err, conn) => {
 				if (err) throw err;
-				conn
-					.db()
+				conn.db()
 					.collection("album")
 					.updateOne({ album_id: id }, { $set: data }, (err, result) => {
 						if (err) throw err;
@@ -108,8 +104,7 @@ module.exports = {
 		return new Promise((resolve) => {
 			mongodb.connect(url, { useUnifiedTopology: true }, (err, conn) => {
 				if (err) throw err;
-				conn
-					.db()
+				conn.db()
 					.collection("album")
 					.updateOne({ _id: id }, (err, result) => {
 						if (err) throw err;

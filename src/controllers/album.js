@@ -2,12 +2,12 @@ const album = require("../models/album");
 
 module.exports = {
 	getAlbum: (req, res) => {
-		album.getAlbum(req.params.id).then((resolve) => {
+		album.getAlbum(parseFloat(req.params.id)).then((resolve) => {
 			res.json(resolve);
 		});
 	},
 	getRandomAlbum: (req, res) => {
-		album.getRandomAlbum(req.body).then((resolve) => {
+		album.getRandomAlbum({ ...req.body, max: parseFloat(req.body.max) }).then((resolve) => {
 			res.json(resolve);
 		});
 	},

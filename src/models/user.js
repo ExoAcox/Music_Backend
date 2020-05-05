@@ -1,8 +1,8 @@
 const db = require("../configs/database");
 
 module.exports = {
-	getUser: username => {
-		return new Promise(resolve => {
+	getUser: (username) => {
+		return new Promise((resolve) => {
 			db.query(`SELECT * FROM user WHERE username = '${username}'`, (err, result) => {
 				if (err) reject(new Error(err));
 				if (result.length > 0) {
@@ -21,7 +21,7 @@ module.exports = {
 			});
 		});
 	},
-	deleteUser: username => {
+	deleteUser: (username) => {
 		return new Promise((resolve, reject) => {
 			db.query(`DELETE FROM user WHERE username = '${username}'`, (err, result) => {
 				if (err) reject(new Error(err));

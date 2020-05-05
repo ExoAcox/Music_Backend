@@ -1,5 +1,6 @@
 const login = require("../models/login");
 const jwt = require("jsonwebtoken");
+const Axios = require("axios");
 
 module.exports = {
 	login: (req, res) => {
@@ -27,7 +28,7 @@ module.exports = {
 	},
 	register: (req, res) => {
 		login
-			.register(req.body.username, req.body.password)
+			.register(req.body.username, req.body.email, req.body.password)
 			.then((resolve) => {
 				res.json(resolve);
 			})
@@ -40,12 +41,26 @@ module.exports = {
 		req.session = null;
 		res.json({ info: "Logout success!" });
 	},
-	callback: (req, res) => {
-		if (!req.user) {
-			res.status(301).redirect("http://127.0.0.1:8080/login");
-			return;
-		}
-		req.session.user = req.user;
-		res.status(301).redirect("http://127.0.0.1:8080");
+	google: (req, res) => {
+		Axios.get("https://www.googleapis.com/oauth2/v2/userinfo", {
+			headers: {
+				Authorization: "Bearer " + req.body.token,
+			},
+		})
+			.then((resolve) => {
+				login
+					.loginSocial(resolve.email, resolve)
+					.then((resolve2) => {
+						delete resolve.password;
+						req.session.token = jwt.sign({ username: resolve.email }, process.env.SECRET_KEY);
+						res.json(resolve2);
+					})
+					.catch((reject) => {
+						res.json({ error: reject });
+					});
+			})
+			.catch((reject) => {
+				res.json(reject);
+			});
 	},
 };

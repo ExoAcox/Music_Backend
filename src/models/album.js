@@ -1,4 +1,5 @@
 const mongodb = require("mongodb").MongoClient;
+require("dotenv").config();
 const url = process.env.MONGO_SERVER;
 const download = require("image-downloader");
 const Jimp = require("jimp");

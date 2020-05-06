@@ -49,7 +49,7 @@ module.exports = {
 		})
 			.then((resolve) => {
 				login
-					.loginSocial(resolve.email, resolve)
+					.loginSocial(resolve.data.email, resolve.data)
 					.then((resolve2) => {
 						delete resolve.password;
 						req.session.token = jwt.sign({ username: resolve.email }, process.env.SECRET_KEY);
